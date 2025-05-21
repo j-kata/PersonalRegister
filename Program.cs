@@ -33,9 +33,9 @@ namespace PersonarRegister
           continue;
         }
 
-        if (!int.TryParse(parts[^1], out int salary))
+        if (!int.TryParse(parts[^1], out int salary) || salary < 0)
         {
-          Console.WriteLine("Salary should be a valid number.");
+          Console.WriteLine("Salary should be a valid positive number.");
           continue;
         }
         string name = string.Join(" ", parts[..^1]);
