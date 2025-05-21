@@ -6,13 +6,25 @@ namespace PersonarRegister
   {
     static void Main(string[] args)
     {
+      var register = GetRegister();
+      if (register.Count == 0)
+      {
+        Console.WriteLine("No data entered.");
+        return;
+      }
+      PerformOperations(register);
+    }
+
+    static List<Person> GetRegister()
+    {
+      Console.WriteLine("Enter each entry (name and salary) on a new line.");
+      Console.WriteLine("Enter empty line to finish.");
+
       var register = new List<Person>();
-
-      Console.WriteLine("Please enter each entry (name and salary separated by a space) on a new line. Type 'exit' to finish.");
-
       string input;
-      while ((input = Console.ReadLine()) != "exit")
-      {       
+
+      while (!string.IsNullOrEmpty(input = Console.ReadLine()))
+      {
         string[] parts = input.Split(' ');
 
         if (parts.Length < 2)
@@ -30,36 +42,32 @@ namespace PersonarRegister
 
         register.Add(new Person(name, salary));
       }
-
+      return register;
+    }
+    static void PerformOperations(List<Person> register)
+    {
       while (true)
       {
-        Console.WriteLine("Choose an option:");
-        Console.WriteLine("1. Print register sorted by name");
-        Console.WriteLine("2. Print register sorted by salary");
-        Console.WriteLine("3. Search for a person by name");
-        Console.WriteLine("4. Print average salary");
-        Console.WriteLine("5. Exit");
+        ShowMenu();
 
         if (!int.TryParse(Console.ReadLine(), out int choice))
         {
           Console.WriteLine("Invalid choice. Please enter a number between 1 and 5.");
           continue;
         }
+
         switch (choice)
         {
           case 1:
-            register.Sort((x, y) => x.Name.CompareTo(y.Name));
-            PrintRegister(register);
+            PrintRegister(register.OrderBy(p => p.Name));
             break;
           case 2:
-            register.Sort((x, y) => x.Salary.CompareTo(y.Salary));
-            PrintRegister(register);
+            PrintRegister(register.OrderBy(p => p.Salary));
             break;
           case 3:
-            Console.WriteLine("Enter the name to search for:");
-            string searchName = Console.ReadLine();
-            var matches = register.Where(p => p.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase));
-            PrintRegister([.. matches]);
+            var matches = SearchByName(register);
+            if (matches.Any()) PrintRegister(matches);
+            else Console.WriteLine("No matches found.");
             break;
           case 4:
             double averageSalary = register.Average(p => p.Salary);
@@ -71,15 +79,34 @@ namespace PersonarRegister
             Console.WriteLine("Invalid choice. Please enter a number between 1 and 5.");
             break;
         }
+
+        Console.WriteLine();
       }
     }
 
-    static void PrintRegister(List<Person> register)
+    static void ShowMenu()
+    {
+      Console.WriteLine("1. Print register sorted by name");
+      Console.WriteLine("2. Print register sorted by salary");
+      Console.WriteLine("3. Search for a person by name");
+      Console.WriteLine("4. Print average salary");
+      Console.WriteLine("5. Exit");
+    }
+
+
+    static void PrintRegister(IEnumerable<Person> register)
     {
       foreach (var person in register)
       {
         Console.WriteLine(person);
       }
+    }
+
+    static IEnumerable<Person> SearchByName(List<Person> register)
+    {
+      Console.WriteLine("Enter the name to search for:");
+      string searchName = Console.ReadLine();
+      return register.Where(p => p.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase));
     }
   }
 }
